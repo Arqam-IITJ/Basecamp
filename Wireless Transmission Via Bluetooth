@@ -1,0 +1,234 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial bluetoothSerial(2,3);  // RX, TX pins
+
+void setup()
+{
+  Serial.begin(9600);  // Initialize serial communications at 9600 bps
+ bluetoothSerial.begin(9600);  // Bluetooth module
+}
+
+void loop() 
+{
+float Vin = 3.3000;             // Input voltage
+float Vout = 0; 
+float Rref = 50.000;            // Reference resistor's value in ohms (you can give this value in kiloohms or megaohms - the resistance of the tested resistor will be given in the same units)
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+String s1 = "Sensor1";
+String s2 = "Sensor2";
+String s12 = "Sensor12";
+String s16 = "Sensor16";
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float R1 = 0;                // Tested resistors default value
+float R2 = 0;  
+float R12 = 0;
+float R16 = 0; // We can add resistances according to us
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float Rt1 = 0;
+float Rt2 = 0;
+float Rt12 = 0;
+float Rt16 = 0;
+//float Rt7 = 0;
+//float Rt8 = 0;
+//float Rt10 = 0;
+//float Rt11 = 0;
+//float Rt14 = 0;
+//float Rt15 = 0;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float sensorSum1 = 0; // Sum of sensor reading
+float sensorSum2 = 0; 
+float sensorSum12 = 0;
+float sensorSum16 = 0;
+//float sensorSum7 = 0;
+//float sensorSum8 = 0;
+//float sensorSum10 = 0;
+//float sensorSum11 = 0;
+//float sensorSum14 = 0;
+//float sensorSum15 = 0;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int numReads = 10; //no of samples
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  for(int K = 0; K < numReads; K++)
+  {sensorSum1 = analogRead(A1);
+    Vout = (5 *sensorSum1) / 1023;     // Convert Vout to volts
+    R1 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt1 += R1;
+    //delay(10);
+  }
+
+float sensorAverage1 = Rt1 / numReads;
+
+float newsensorAverage1 = 18.75000; // unstrained resistance value of r1
+float change1 = (abs(sensorAverage1 - newsensorAverage1)/newsensorAverage1)*100; // delta r/r*100
+float strain1 = change1/(14.05); // this part is done after gf is found so to find the gf we donot need this part
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum2 = analogRead(A2);
+    Vout = (5 *sensorSum2) / 1023;     // Convert Vout to volts
+    R2 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt2 += R2;
+    //delay(10);
+  }
+float sensorAverage2 = Rt2 / numReads; 
+
+float newsensorAverage2 = 15.22500;
+float change2 = (abs(sensorAverage2 - newsensorAverage2)/newsensorAverage2)*100;
+float strain2 = change2/(19);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum12 = analogRead(A12);
+    Vout = (5 *sensorSum12) / 1023;     // Convert Vout to volts
+    R12 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt12 += R12;
+    //delay(10);
+  }
+float sensorAverage12 = Rt12 / numReads; 
+
+float newsensorAverage12 = 18.20200;
+float change12 = (abs(sensorAverage12 - newsensorAverage12)/newsensorAverage12)*100;
+//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum16 = analogRead(A15);
+    Vout = (5 *sensorSum16) / 1023;     // Convert Vout to volts
+    R16 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt16 += R16;
+    //delay(10);
+  }
+float sensorAverage16 = Rt16 / numReads; 
+
+float newsensorAverage16 = 17.23000;
+float change16 = (abs(sensorAverage16 - newsensorAverage16)/newsensorAverage16)*100;
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+  float maxValue = max(change1, max(change2, max(change12, change16)));
+
+  // Determine which variable corresponds to the maximum value
+ String maxVariable;
+  if (maxValue == change1) {
+    maxVariable = s1;
+  } else if (maxValue == change2) {
+    maxVariable = s2;
+  } else if (maxValue == change12) {
+    maxVariable = s12;
+  } else {
+    maxVariable = s16;
+  }
+/*//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum11 = analogRead(A11);
+    Vout = (Vin *sensorSum11) / 1023;     // Convert Vout to volts
+    R11 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt11 += R11;
+    delay(10);
+  }
+float sensorAverage11 = Rt11 / numReads; 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum14 = analogRead(A14);
+    Vout = (Vin *sensorSum14) / 1023;     // Convert Vout to volts
+    R14 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt14 += R14;
+    delay(10);
+  }
+float sensorAverage14 = Rt14 / numReads; 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum15 = analogRead(A15);
+    Vout = (Vin *sensorSum15) / 1023;     // Convert Vout to volts
+    R15 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt15 += R15;
+    delay(10);
+  }
+float sensorAverage15 = Rt15 / numReads; 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+   for(int K = 0; K < numReads; K++)
+   {sensorSum16 = analogRead(A16);
+    Vout = (Vin *sensorSum16) / 1023;     // Convert Vout to volts
+    R16 = Rref * (1 / ((Vin / Vout) - 1));  // Formula to calculate tested resistor's value
+    Rt16 += R16;
+    delay(10);
+   }
+float sensorAverage15 = Rt16 / numReads;
+ delay(1000);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+*/
+
+  //Serial.print(10000);
+  //Serial.print(',');
+  //Serial.print(1000);
+  //Serial.print(',');
+  //Serial.print(sensorAverage1);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage2);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage12);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage16);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println();
+  //Serial.print(newsensorAverage1);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(newsensorAverage2);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(newsensorAverage12);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(newsensorAverage16);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println();
+  //Serial.print(change1);
+  //Serial.print(',');
+  //Serial.print(change2);
+  //Serial.print(',');
+  //Serial.print(change12);
+  //Serial.print(',');
+  //Serial.print(change16);
+  //Serial.print(',');
+  //Serial.println();
+  //Serial.print(strain1);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(strain2);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println();
+  //Serial.print(sensorAverage12);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage16);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage7);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println(sensorAverage8);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println(sensorAverage10);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.println(sensorAverage11);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage14);  // Give calculated resistance in Serial Monitor
+  //Serial.print(',');
+  //Serial.print(sensorAverage16);  // Give calculated resistance in Serial Monitor*/
+
+  // Print the maximum value and corresponding variable to the Serial Monitor
+  //Serial.print("Max Value: ");
+  Serial.print(maxValue);
+  //Serial.print( '%');
+  //Serial.print( ',');
+  //Serial.print("Corresponding Variable: ");
+  //Serial.println(maxVariable);
+  Serial.println();
+  bluetoothSerial.println();
+  bluetoothSerial.print("sensorAverage1 : ");
+  bluetoothSerial.print(sensorAverage1);
+  bluetoothSerial.println();
+  bluetoothSerial.print("sensorAverage2 : ");
+  bluetoothSerial.print(sensorAverage2);
+ bluetoothSerial.println();
+ bluetoothSerial.print("sensorAverage12 : ");
+  bluetoothSerial.print(sensorAverage12);
+  bluetoothSerial.println();
+  bluetoothSerial.print("sensorAverage16 : ");
+  bluetoothSerial.print(sensorAverage16);
+  bluetoothSerial.println();
+  bluetoothSerial.print("maxValue : ");
+  bluetoothSerial.print(maxValue);
+ delay(500);
+}
